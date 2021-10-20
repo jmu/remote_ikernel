@@ -14,18 +14,22 @@ import logging
 import os
 import re
 import subprocess
+import sys
 import time
 import uuid
 
 import pexpect
 
 try:
-    #from pexpect import spawn as pexpect_spawn
-    from pexpect.popen_spawn import PopenSpawn
+    from pexpect import spawn as pexpect_spawn
+    if "--win" in sys.argv:
+        print("----win----")
+        # use PopenSpawn when connect to Windows
+        from pexpect.popen_spawn import PopenSpawn
 
-    class pexpect_spawn(PopenSpawn):
-        def isalive(self):
-            return self.proc.poll() is None
+        class pexpect_spawn(PopenSpawn):
+            def isalive(self):
+                return self.proc.poll() is None
 except ImportError:
     from pexpect.popen_spawn import PopenSpawn
 
@@ -204,6 +208,7 @@ class RemoteIKernel(object):
         verbose=False,
         tunnel_hosts=None,
         launch_cmd=None,
+        win=False,
     ):
         """
         Initialise a kernel on a remote machine and start tunnels.
@@ -233,6 +238,7 @@ class RemoteIKernel(object):
         self.precmd = precmd
         self.launch_cmd = launch_cmd
         self.launch_args = launch_args
+        self.win = win
         self.cwd = os.getcwd()  # Launch directory may be needed if no workdir
         # Assign the parent uuid, or generate a new one
         self.uuid = extract_uuid(connection_info) or uuid.uuid4()
@@ -474,9 +480,14 @@ class RemoteIKernel(object):
 
         # Create a temporary file to store a copy of the connection information
         # Delete the file if it already exists
-        conn.sendline("rm -f {0}".format(kernel_name))
+        if not self.win:
+            conn.sendline("rm -f {0}".format(kernel_name))
         file_contents = json.dumps(self.connection_info)
-        conn.sendline("echo '{0}' > {1}".format(file_contents, kernel_name))
+        if not self.win:
+            conn.sendline("echo '{0}' > {1}".format(file_contents, kernel_name))
+        else:
+            conn.sendline("echo {0} > {1}".format(file_contents, kernel_name))
+
 
         # Is this the best place for a pre-command? I guess people will just
         # have to deal with it. Pass it on as is.
@@ -495,7 +506,8 @@ class RemoteIKernel(object):
         # transient file for once the process stops. Trying to do this
         # whilst simultaneously starting the kernel ended up deleting
         # the file before it was read.
-        conn.sendline("rm -f {0}".format(kernel_name))
+        if not self.win:
+            conn.sendline("rm -f {0}".format(kernel_name))
         conn.sendline("exit")
 
         # Could check this for errors?
@@ -704,6 +716,7 @@ def start_remote_kernel():
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--tunnel-hosts", nargs="+")
     parser.add_argument("--launch-cmd")
+    parser.add_argument("--win", action="store_true")
     parser.add_argument(
         "--version",
         "-V",
@@ -727,5 +740,6 @@ def start_remote_kernel():
         verbose=args.verbose,
         tunnel_hosts=args.tunnel_hosts,
         launch_cmd=args.launch_cmd,
+        win=args.win,
     )
     kernel.keep_alive()

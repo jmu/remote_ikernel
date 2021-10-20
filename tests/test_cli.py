@@ -88,6 +88,7 @@ def test_minimum_args():
         "--interface=local",
         "--kernel_cmd=command",
         "--name=name",
+        "--win",
         expect_error=False,
     )
     assert "Added kernel" in result.stdout

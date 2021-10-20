@@ -160,6 +160,7 @@ def add_kernel(
     tunnel_hosts=None,
     verbose=False,
     launch_cmd=None,
+    win=False,
 ):
     """
     Add a kernel. Generates a kernel.json and installs it for the system or
@@ -244,6 +245,9 @@ def add_kernel(
 
     if verbose:
         argv.extend(["--verbose"])
+
+    if win:
+        argv.extend(["--win"])
 
     # protect the {connection_file} part of the kernel command
     if kernel_cmd is None:
@@ -412,6 +416,11 @@ def manage():
         help="Running kernel will produce verbose debugging on the console.",
     )
     parser.add_argument(
+        "--win",
+        action="store_true",
+        help="Connect to Windows. SSH only",
+    )
+    parser.add_argument(
         "--version",
         "-V",
         action="version",
@@ -447,6 +456,7 @@ def manage():
             args.tunnel_hosts,
             args.verbose,
             args.launch_cmd,
+            args.win,
         )
         print("Added kernel ['{0}']: {1}.".format(kernel_name, display_name))
     elif args.delete:
