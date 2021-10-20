@@ -599,7 +599,10 @@ class RemoteIKernel(object):
                 pass
             except KeyboardInterrupt:
                 self.log.info("Caught interrupt; sending SIGINT to kernel.")
-                self.connection.sendintr()
+                if not self.win:
+                    self.connection.sendintr()
+                else:
+                    self.connection.sendline("quit")
 
     def _spawn(self, command, timeout=600):
         """
