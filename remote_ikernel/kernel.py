@@ -23,7 +23,6 @@ import pexpect
 try:
     from pexpect import spawn as pexpect_spawn
     if "--win" in sys.argv:
-        print("----win----")
         # use PopenSpawn when connect to Windows
         from pexpect.popen_spawn import PopenSpawn
 
