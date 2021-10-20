@@ -22,6 +22,10 @@ import pexpect
 try:
     #from pexpect import spawn as pexpect_spawn
     from pexpect.popen_spawn import PopenSpawn
+
+    class pexpect_spawn(PopenSpawn):
+        def isalive(self):
+            return self.proc.poll() is None
 except ImportError:
     from pexpect.popen_spawn import PopenSpawn
 
