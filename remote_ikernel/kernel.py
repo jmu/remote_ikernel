@@ -20,7 +20,8 @@ import uuid
 import pexpect
 
 try:
-    from pexpect import spawn as pexpect_spawn
+    #from pexpect import spawn as pexpect_spawn
+    from pexpect.popen_spawn import PopenSpawn
 except ImportError:
     from pexpect.popen_spawn import PopenSpawn
 
@@ -73,7 +74,7 @@ def _setup_logging(verbose):
         message = args[0]
         # convert bytes from pexpect to something that prints better
         if hasattr(message, "decode"):
-            message = message.decode("utf-8")
+            message = message.decode("utf-8", "ignore")
 
         for line in message.splitlines():
             if line.strip():
