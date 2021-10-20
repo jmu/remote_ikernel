@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -602,7 +603,8 @@ class RemoteIKernel(object):
                 if not self.win:
                     self.connection.sendintr()
                 else:
-                    self.connection.sendline("quit")
+                    #self.connection.sendline("quit")
+                    self.connection.kill(signal.SIGINT)
 
     def _spawn(self, command, timeout=600):
         """
