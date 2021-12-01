@@ -1,4 +1,4 @@
-Remote IKernel
+Remote IKernel(Support Windows Edition)
 --------------
 
 All your Jupyter kernels, on all your machines, in one place.
